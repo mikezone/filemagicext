@@ -305,7 +305,7 @@ MAGIC_NO_CHECK_TROFF = 0x040000  # Don't check ascii/troff
 MAGIC_NO_CHECK_FORTRAN = 0x080000  # Don't check ascii/fortran
 MAGIC_NO_CHECK_TOKENS = 0x100000  # Don't check ascii/tokens
 
-
+################################################################################
 
 def from_file(filename):
     m = _get_magic_type(False)
@@ -318,14 +318,6 @@ def from_buffer(buffer):
     base_info = m.from_buffer(buffer)
     return TypeInfo(base_info=base_info)
 
-
-# def is_word():
-    # docx   Microsoft Word 2007+
-    # doc   Composite Document File V2 Document, Little Endian, Os: MacOS, Version 10.3, Code page: 10008, Author: Microsoft Office , Template: Normal.dotm, Last Saved By: Microsoft Office , Revision Number: 3, Name of Creating Application: Microsoft Macintosh Word, Create Time/Date: Mon May 14 08:18:00 2018, Last Saved Time/Date: Mon May 14 08:18:00 2018, Number of Pages: 1, Number of Words: 0, Number of Characters: 0, Security: 0
-    # xlsx  Microsoft Excel 2007+
-    # xls Composite Document File V2 Document, Little Endian, Os: MacOS, Version 10.3, Code page: 10008, Author: Microsoft Office 00 2, Last Saved By: Microsoft Office 00 2, Name of Creating Application: Microsoft Macintosh Excel, Create Time/Date: Mon May 14 08:20:11 2018, Last Saved Time/Date: Mon May 14 08:20:22 2018, Security: 0
-    # ppt Composite Document File V2 Document, Little Endian, Os: MacOS, Version 10.3, Code page: 10008, Title: PowerPoint N\\016\\177, Author: Microsoft Office &, Last Saved By: Microsoft Office &, Revision Number: 1, Name of Creating Application: Microsoft Macintosh PowerPoint, Total Editing Time: 00:15, Create Time/Date: Mon May 14 08:19:15 2018, Last Saved Time/Date: Mon May 14 08:19:31 2018, Number of Words: 0
-    # pptx Microsoft PowerPoint 2007+
 
 class TypeInfo(object):
 
@@ -350,22 +342,40 @@ class TypeInfo(object):
     #     return self._mime == 'text/html'
 
     def is_word(self):
+        '''
+        macOS docx: Microsoft Word 2007+
+        macOS doc:  Composite Document File V2 Document, Little Endian, Os: MacOS, Version 10.3, Code page: 10008, Author: Microsoft Office , Template: Normal.dotm, Last Saved By: Microsoft Office , Revision Number: 3, Name of Creating Application: Microsoft Macintosh Word, Create Time/Date: Mon May 14 08:18:00 2018, Last Saved Time/Date: Mon May 14 08:18:00 2018, Number of Pages: 1, Number of Words: 0, Number of Characters: 0, Security: 0
+        win docx:   Microsoft Word 2007+
+        win doc:    Composite Document File V2 Document, Little Endian, Os: Windows, Version 5.1, Code page: 936, Title: C++, Template: Normal, Revision Number: 1, Name of Creating Application: Microsoft Office Word, Total Editing Time: 02:00, Create Time/Date: Thu Feb  2 12:48:00 2012, Last Saved Time/Date: Thu Feb  2 12:50:00 2012, Number of Pages: 1, Number of Words: 1210, Number of Characters: 6897, Security: 0
+        '''
         return "Microsoft Office Word" in self._base_info or \
                self._base_info == "Microsoft Word document (*.docx)" or \
                'Microsoft Macintosh Word' in self._base_info or \
-               'Microsoft Word 2007+' in self._base_info
+               self._base_info == 'Microsoft Word 2007+'
 
     def is_excel(self):
+        '''
+        macOS xlsx: Microsoft Excel 2007+
+        macOS xls:  Composite Document File V2 Document, Little Endian, Os: MacOS, Version 10.3, Code page: 10008, Author: Microsoft Office , Last Saved By: Microsoft Office , Name of Creating Application: Microsoft Macintosh Excel, Create Time/Date: Mon May 14 08:20:11 2018, Last Saved Time/Date: Mon May 14 08:20:22 2018, Security: 0
+        win xlsx:   Microsoft Excel 2007+
+        win xls:    Composite Document File V2 Document, Little Endian, Os: Windows, Version 5.0, Code page: 936, Name of Creating Application: Microsoft Excel, Create Time/Date: Tue Dec 17 01:32:42 1996, Last Saved Time/Date: Thu Jan 31 07:43:10 2008, Security: 0
+        '''
         return "Microsoft Excel" in self._base_info or \
                self._base_info == "Microsoft Excel document (*.xlsx)" or \
                'Microsoft Macintosh Excel' in self._base_info or \
-               'Microsoft Excel 2007+' in self._base_info
+               self._base_info == 'Microsoft Excel 2007+'
 
     def is_ppt(self):
+        '''
+        macOS pptx: Microsoft PowerPoint 2007+
+        macOS ppt:  Composite Document File V2 Document, Little Endian, Os: MacOS, Version 10.3, Code page: 10008, Title: PowerPoint , Author: Microsoft Office , Last Saved By: Microsoft Office , Revision Number: 1, Name of Creating Application: Microsoft Macintosh PowerPoint, Total Editing Time: 00:15, Create Time/Date: Mon May 14 08:19:15 2018, Last Saved Time/Date: Mon May 14 08:19:31 2018, Number of Words: 0
+        win pptx:   Microsoft PowerPoint 2007+
+        win ppt:    Composite Document File V2 Document, Little Endian, Os: Windows, Version 6.1, Code page: 936, Title: PowerPoint , Author: mwz2, Last Saved By: nijch, Revision Number: 69, Name of Creating Application: Microsoft Office PowerPoint, Total Editing Time: 3d+10:21:36, Create Time/Date: Wed Mar 24 08:08:03 2004, Last Saved Time/Date: Sun Nov 25 10:53:30 2012, Number of Words: 13734
+        '''
         return "Microsoft Office PowerPoint" in self._base_info or \
                self._base_info == "Microsoft PowerPoint document (*.pptx)" or \
                'Microsoft Macintosh PowerPoint' in self._base_info or \
-               'Microsoft PowerPoint 2007+' in self._base_info
+               self._base_info == 'Microsoft PowerPoint 2007+'
 
     def is_pdf(self):
         return self._base_info.startswith("PDF document")
