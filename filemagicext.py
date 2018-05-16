@@ -124,7 +124,7 @@ def _get_magic_type(mime):
 
 
 def from_file(filename, mime=False):
-    """"
+    """
     Accepts a filename and returns the detected filetype.  Return
     value is the mimetype if mime=True, otherwise a human readable
     name.
@@ -308,13 +308,13 @@ MAGIC_NO_CHECK_TOKENS = 0x100000  # Don't check ascii/tokens
 
 
 def from_file(filename):
-    m = _get_magic_type(mime)
+    m = _get_magic_type(False)
     base_info = m.from_file(filename)
     return TypeInfo(base_info=base_info)
 
 
 def from_buffer(buffer):
-    m = _get_magic_type(mime)
+    m = _get_magic_type(False)
     base_info = m.from_buffer(buffer)
     return TypeInfo(base_info=base_info)
 
@@ -350,13 +350,25 @@ class TypeInfo(object):
     #     return self._mime == 'text/html'
 
     def is_word(self):
-        return "Microsoft Office Word" in self._base_info or self._base_info == "Microsoft Word document (*.docx)"
+        return "Microsoft Office Word" in self._base_info or \
+               self._base_info == "Microsoft Word document (*.docx)" or \
+               'Microsoft Macintosh Word' in self._base_info or \
+               'Microsoft Word 2007+' in self._base_info
 
     def is_excel(self):
-        return "Microsoft Excel" in self._base_info or self._base_info == "Microsoft Excel document (*.xlsx)"
+        return "Microsoft Excel" in self._base_info or \
+               self._base_info == "Microsoft Excel document (*.xlsx)" or \
+               'Microsoft Macintosh Excel' in self._base_info or \
+               'Microsoft Excel 2007+' in self._base_info
 
     def is_ppt(self):
-        return "Microsoft Office PowerPoint" in self._base_info or self._base_info == "Microsoft PowerPoint document (*.pptx)"
+        return "Microsoft Office PowerPoint" in self._base_info or \
+               self._base_info == "Microsoft PowerPoint document (*.pptx)" or \
+               'Microsoft Macintosh PowerPoint' in self._base_info or \
+               'Microsoft PowerPoint 2007+' in self._base_info
+
+    def is_pdf(self):
+        return self._base_info.startswith("PDF document")
 
     def is_rtf(self):
         return self._base_info.startswith("Rich Text Format")
@@ -364,7 +376,10 @@ class TypeInfo(object):
     def is_html(self):
         return self._base_info.startswith('HTML document text')
 
-    def is_text(self):
+    def is_script(self):
+        return 'script' in self._base_info
+
+    def is_other_text(self):
         return 'text' in self._base_info
 
     def is_linux_executable(self):
@@ -378,8 +393,14 @@ class TypeInfo(object):
                self._base_info.startswith("Microsoft Windows Autorun file") or \
                self._base_info.startswith("x86 boot sector")
 
-    def is_pdf(self):
-        return self._base_info.startswith("PDF document")
+    def is_7_zip(self):
+        return self._base_info.startswith("7-zip archive data")
+
+    def is_rar(self):
+        return self._base_info.startswith("RAR archive data")
+
+    def is_tar(self):
+        return self._base_info == "tar archive"
 
     def is_other_zip(self):
         return  self._base_info.startswith("application/zip") or \
@@ -392,16 +413,3 @@ class TypeInfo(object):
                 self._base_info.startswith("xar archive") or \
                 self._base_info == "xz compressed data" or \
                 self._base_info.startswith("Zip64 archive data")
-
-    def is_7_zip(self):
-        return self._base_info.startswith("7-zip archive data")
-
-    def is_rar(self):
-        return self._base_info.startswith("RAR archive data")
-
-    def is_tar(self):
-        return self._base_info == "tar archive"
-
-    def is_script(self):
-        return 'script' in self._base_info
-
